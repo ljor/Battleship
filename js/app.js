@@ -1,6 +1,6 @@
-const player1Board = document.querySelector('#player1-board')
-const playerGridSquares = document.querySelectorAll('#player1-board > div')
-const pieceContainer = document.querySelector('.pieceboard')
+const player1Board = document.querySelector('#p1-board')
+const playerGridSquares = document.querySelectorAll('#p1-board > div')
+const pieceContainer = document.querySelector('#p1-pieceboard')
 
 const playerSquares = []
 const gamePieces = []
@@ -91,7 +91,7 @@ const cruiser = document.querySelector('.cruiser-container')
 const submarine = document.querySelector('.submarine-container')
 const battleship = document.querySelector('.battleship-container')
 const carrier = document.querySelector('.carrier-container')
-const ships = document.querySelectorAll('ship')
+const ships = document.querySelectorAll('.ship')
 
 // Piece Rotation
 function rotate() {
@@ -120,14 +120,15 @@ function changeColor(square) {
     let randomNumber = Math.floor(Math.random() * 10)
 
     if (randomNumber <= 7) {
-        square.style.backgroundColor = 'white'
+        square.classList.add('miss')
     } else {
-        square.style.backgroundColor = 'red'
+        square.classList.add('hit')
     }
 }
 
 player1Board.addEventListener('click', (event)=>{
     console.log(event.target)
+    console.log(typeof event.target.dataset.id, event.target.dataset.id)
     changeColor(event.target)
 })
 
@@ -136,3 +137,17 @@ window.addEventListener('keydown', (event)=> {
         rotate()
     }
 })
+
+// destroyer.addEventListener('mousedown', (event)=> {
+//     let test = parseInt(event.target.id.slice(event.target.id.length-1))
+//     console.log(typeof test, test)
+// })
+
+console.log(ships)
+
+ships.forEach(ship => {
+    ship.addEventListener('mousedown', (event)=> {
+        let test = parseInt(event.target.id.slice(event.target.id.length-1))
+        console.log(typeof test, test)
+    })
+});
