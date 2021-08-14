@@ -32,7 +32,6 @@ function createBoard(board, grid) {
 createBoard(player1Board, playerSquares)
 
 // Create Gamepieces
-
 function createPlayerShips() {
     let destroyerContainer = document.createElement('div')
     destroyerContainer.classList.add('ship', 'destroyer-container')
@@ -92,7 +91,16 @@ const cruiser = document.querySelector('.cruiser-container')
 const submarine = document.querySelector('.submarine-container')
 const battleship = document.querySelector('.battleship-container')
 const carrier = document.querySelector('.carrier-container')
+const ships = document.querySelectorAll('ship')
 
+// Piece Rotation
+function rotate() {
+    destroyer.classList.toggle('destroyer-container-vertical')
+    cruiser.classList.toggle('cruiser-container-vertical')
+    submarine.classList.toggle('submarine-container-vertical')
+    battleship.classList.toggle('battleship-container-vertical')
+    carrier.classList.toggle('carrier-container-vertical')
+}
 
 // Gamepiece Placement
 
@@ -121,4 +129,10 @@ function changeColor(square) {
 player1Board.addEventListener('click', (event)=>{
     console.log(event.target)
     changeColor(event.target)
+})
+
+window.addEventListener('keydown', (event)=> {
+    if(event.code === 'KeyR') {
+        rotate()
+    }
 })
