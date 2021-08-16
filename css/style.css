@@ -3,6 +3,7 @@ html, body {
     margin: 0;
 }
 body {
+    font-family: 'Goldman', cursive;
     background-color: black;
     color: white;
 }
@@ -10,6 +11,12 @@ body {
 h1 {
     font-family: 'Black Ops One', cursive;
     font-size: 4rem;
+    margin: 10px;
+    padding: 0;
+}
+header {
+    margin-bottom: 15px;
+    padding-bottom: 0px;
 }
 
 #container {
@@ -62,6 +69,14 @@ h1 {
     width: calc(4.6vmin * var(--width, 1));
     height: calc(4.6vmin * var(--height, 1));
     border-radius: 2.3vmin;
+}
+
+.destroyer,
+.cruiser,
+.submarine,
+.battleship,
+.carrier {
+    background-color: hsl(0, 0%, 70%);
 }
 
 .taken.start.vertical {
@@ -140,4 +155,9 @@ h1 {
     margin: auto;
     width: 2vmin;
     height: 2vmin;
+}
+
+.drag-over {
+    background-color: rgb(88, 149, 153);
+    border: 1px solid hsla(0, 0%, 100%, .5);
 }
