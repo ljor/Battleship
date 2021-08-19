@@ -1,12 +1,32 @@
+const setupDialog = document.querySelector('#setup')
+const p1Input = document.querySelector('#player1')
+const p2Input = document.querySelector('#player2')
 const p1BoardsContainer = document.querySelector('#p1-boards')
 const p1Board = document.querySelector('#p1-board')
 const p2Board = document.querySelector('#p2-board')
 // const playerGridSquares = document.querySelectorAll('#p1-board > div')
-const p1PieceContainer = document.querySelector('#p1-pieceboard')
-const p2PieceContainer = document.querySelector('#p2-pieceboard')
+const p1Pieces = document.querySelector('#pieceboard1')
+const p2Pieces = document.querySelector('#pieceboard2')
+const display = document.querySelector('#message-display')
+const start = document.querySelector('#start')
+const finished = document.querySelector('#finished')
 
 const p1Squares = []
 const p2Squares = []
+
+const shipTypes = [
+    'destroyer',
+    'cruiser',
+    'submarine',
+    'battleship',
+    'carrier'
+  ]
+  
+const p1Ships = []
+const p2Ships = []
+
+let p1Name = 'Player 1'
+let p2Name = 'Player 2'
 
 let selectedShipSectionId
 let selectedShip
@@ -16,6 +36,22 @@ let draggedShipLength
 let p1Turn = true
 let p2Turn = false
 let isHorizontal = true
+
+// Game Start
+const startGame = ()=> {
+    p1Name = p1Input.value
+    p2Name = p2Input.value
+    
+    setupDialog.close()
+
+    p1Turn = true
+    p2Turn = false  
+
+    display.innerText = `${p1Name}, place your ships on the board. Press 'R' to rotate them.`
+
+    p2Board.style.display = 'none'
+    p2Pieces.style.display = 'none'
+}
 
 // Create Gameboard
 function createBoard(board, grid) {
@@ -44,60 +80,59 @@ function createBoard(board, grid) {
 createBoard(p1Board, p1Squares)
 createBoard(p2Board, p2Squares)
 
-// Create Gamepieces
-function createPlayerShips(container, player) {
-    let destroyerContainer = document.createElement('div')
-    destroyerContainer.classList.add('ship', 'destroyer-container')
-    for (let i = 0; i < 2; i++){
-        let square = document.createElement('div')
-        square.setAttribute('id', `destroyer-${i}`)
-        destroyerContainer.appendChild(square)
+// Create Gamepieces 
+class Ship {
+    constructor(ship, length) {
+        this.ship = ship
+        this.length = length
+        this.directions = []
+  
+        let wplaceholder = []
+        let vplaceholder = []
+  
+        for (let i = 0; i < this.length; i++) {
+            wplaceholder.push(i)
+            vplaceholder.push(i * 10)
+      }
+        this.directions.push(wplaceholder, vplaceholder)
     }
-    destroyerContainer.draggable = true
-    container.appendChild(destroyerContainer)
+  }
+  
+class playerShip extends Ship {
+    constructor(ship, length, owner, directions) {
+        super(ship, length, directions)
+        this.owner = owner
+    }
+    createPieces(board) {
+        let shipContainer = document.createElement('div')
+        shipContainer.classList.add('ship', `${this.ship}`, `${this.ship}-container`)
+        shipContainer.draggable = true
+        
+        for (let i = 0; i < this.length; i++){
+            let parts = document.createElement('div')
+            parts.setAttribute('id', `${this.owner}${this.ship}-${i}`)
+            shipContainer.appendChild(parts)
+      }
+      board.appendChild(shipContainer)
+    }
+  }
+  
+  function generateShips(ship, index) {
+    if (index < 2) {
+      p1Ships.push(new playerShip(ship, index + 2, 'p1'))
+      p2Ships.push(new playerShip(ship, index + 2, 'p2'))
+    } else if (index >= 2) {
+      p1Ships.push(new playerShip(ship, index + 1, 'p1'))
+      p2Ships.push(new playerShip(ship, index + 1, 'p2'))
+    }
+  }
+  
+  shipTypes.forEach(generateShips);
+  
+  p1Ships.forEach((index) => index.createPieces(p1Pieces))
+  p1Ships.forEach((index) => index.createPieces(p2Pieces))
 
-    let cruiserContainer = document.createElement('div')
-    cruiserContainer.classList.add('ship', 'cruiser-container')
-    for (let i = 0; i < 3; i++){
-        let square = document.createElement('div')
-        square.setAttribute('id', `cruiser-${i}`)
-        cruiserContainer.appendChild(square)
-    }
-    cruiserContainer.draggable = true
-    container.appendChild(cruiserContainer)
-
-    let submarineContainer = document.createElement('div')
-    submarineContainer.classList.add('ship', 'submarine-container')
-    for (let i = 0; i < 3; i++){
-        let square = document.createElement('div')
-        square.setAttribute('id', `submarine-${i}`)
-        submarineContainer.appendChild(square)
-    }
-    submarineContainer.draggable = true
-    container.appendChild(submarineContainer)
-
-    let battleshipContainer = document.createElement('div')
-    battleshipContainer.classList.add('ship', 'battleship-container')
-    for (let i = 0; i < 4; i++){
-        let square = document.createElement('div')
-        square.setAttribute('id', `battleship-${i}`)
-        battleshipContainer.appendChild(square)
-    }
-    battleshipContainer.draggable = true
-    container.appendChild(battleshipContainer)
-
-    let carrierContainer = document.createElement('div')
-    carrierContainer.classList.add('ship', 'carrier-container')
-    for (let i = 0; i < 5; i++){
-        let square = document.createElement('div')
-        square.setAttribute('id', `carrier-${i}`)
-        carrierContainer.appendChild(square)
-    }
-    carrierContainer.draggable = true
-    container.appendChild(carrierContainer)
-}
-createPlayerShips(p1PieceContainer)
-createPlayerShips(p2PieceContainer)
+console.log(typeof p1Pieces)
 
 // ship piece selectors
 const destroyer = document.querySelectorAll('.destroyer-container')
@@ -144,147 +179,71 @@ function rotate() {
         }) 
         isHorizontal = true
     }
-    console.log(isHorizontal)
 }
-
-
-// Gamepiece Placement <-- keep global
-ships.forEach((ship) => {ship.addEventListener('dragstart', dragStart)})
-
-// p1 drag event listeners <-- make available only during p1's piece placement phase
-p1Squares.forEach((square) => {square.addEventListener('dragstart', dragStart)})
-p1Squares.forEach((square) => {square.addEventListener('dragover', dragOver)})
-p1Squares.forEach((square) => {square.addEventListener('dragenter', dragEnter)})
-p1Squares.forEach((square) => {square.addEventListener('dragleave', dragLeave)})
-p1Squares.forEach((square) => {square.addEventListener('drop', dragDrop)})
-p1Squares.forEach((square) => {square.addEventListener('dragend', dragEnd)})
-
-// p2 drag event listeners  <-- make available only during p2's piece placement phase
-p2Squares.forEach((square) => {square.addEventListener('dragstart', dragStart)})
-p2Squares.forEach((square) => {square.addEventListener('dragover', dragOver)})
-p2Squares.forEach((square) => {square.addEventListener('dragenter', dragEnter)})
-p2Squares.forEach((square) => {square.addEventListener('dragleave', dragLeave)})
-p2Squares.forEach((square) => {square.addEventListener('drop', dragDrop)})
-p2Squares.forEach((square) => {square.addEventListener('dragend', dragEnd)})
-
-function dragStart() {
-    draggedShip = this
-    draggedShipLength = this.childNodes.length
-}
-
-function dragOver(e) {
-    e.preventDefault()
-
-    if (isHorizontal) {
-        for (let i = 0; i < draggedShipLength; i++) {
-            p1Squares[parseInt(this.dataset.id) - selectedShipSectionId + i].classList.add('drag-over')
-        }
-    } else if (!isHorizontal) {
-        for (let i = 0; i < draggedShipLength; i++) {
-            p1Squares[parseInt(this.dataset.id) - selectedShipSectionId + 10 * i].classList.add('drag-over')
-        }
-    }
-}
-  
-function dragEnter(e) {
-    e.preventDefault()
-
-    if (isHorizontal) {
-        for (let i = 0; i < draggedShipLength; i++) {
-            p1Squares[parseInt(this.dataset.id) - selectedShipSectionId + i].classList.add('drag-over')
-        }
-    } else if (!isHorizontal) {
-        for (let i = 0; i < draggedShipLength; i++) {
-            p1Squares[parseInt(this.dataset.id) - selectedShipSectionId + 10 * i].classList.add('drag-over')
-        }
-    }
-}
-  
-function dragLeave(e) {
-    console.log('drag leave')
-    
-    if (isHorizontal) {
-        for (let i = 0; i < draggedShipLength; i++) {
-            p1Squares[parseInt(this.dataset.id) - selectedShipSectionId + i].classList.remove('drag-over')
-        }
-    } else if (!isHorizontal) {
-        for (let i = 0; i < draggedShipLength; i++) {
-            p1Squares[parseInt(this.dataset.id) - selectedShipSectionId + 10 * i].classList.remove('drag-over')
-        }
-    }
-}
-
-// Logic gaps to fix: ship edge wrapping and ship placement stacking
-function dragDrop() {
-    if (isHorizontal) {
-        for (let i = 0; i < draggedShipLength; i++) {
-            p1Squares[parseInt(this.dataset.id) - selectedShipSectionId + i].classList.remove('drag-over')
-        }
-    } else if (!isHorizontal) {
-        for (let i = 0; i < draggedShipLength; i++) {
-            p1Squares[parseInt(this.dataset.id) - selectedShipSectionId + 10 * i].classList.remove('drag-over')
-        }
-    }
-    console.log(this.classList.contains('right-edge'))
-    
-    if (isHorizontal) {
-      for (let i = 0; i < draggedShipLength; i++) {
-        p1Squares[parseInt(this.dataset.id) - selectedShipSectionId + i].classList.add('taken', 'horizontal',  selectedShip)
-        if (i === 0) {
-            p1Squares[parseInt(this.dataset.id) - selectedShipSectionId + i].classList.add('start')
-        }
-        if (i === draggedShipLength - 1){
-            p1Squares[parseInt(this.dataset.id) - selectedShipSectionId + i].classList.add('end')
-        }
-      }
-    } else if (!isHorizontal) {
-      for (let i = 0; i < draggedShipLength; i++) {
-        p1Squares[parseInt(this.dataset.id) - selectedShipSectionId + 10 * i].classList.add('taken', 'vertical', selectedShip)
-        if (i === 0) {
-            p1Squares[parseInt(this.dataset.id) - selectedShipSectionId + i].classList.add('start')
-        }
-        if (i === draggedShipLength - 1){
-            p1Squares[parseInt(this.dataset.id) - selectedShipSectionId + 10 * i].classList.add('end')
-        }
-      }
-    } else return
-    
-    p1PieceContainer.removeChild(draggedShip)
-  }
-  
-  function dragEnd() {
-    console.log('dragend')
-  }
-
-// Game Start
-
 
 // Gameplay
 
+function finishedPlacement() {
+    if (p1Turn === true) {
+        p2Turn = true
+        p1Turn = false
+
+        p1Squares.forEach((square) => {square.removeEventListener('dragstart', dragStart)})
+        p1Squares.forEach((square) => {square.removeEventListener('dragover', dragOver)})
+        p1Squares.forEach((square) => {square.removeEventListener('dragenter', dragEnter)})
+        p1Squares.forEach((square) => {square.removeEventListener('dragleave', dragLeave)})
+        p1Squares.forEach((square) => {square.removeEventListener('drop', dragDrop)})
+        p1Squares.forEach((square) => {square.removeEventListener('dragend', dragEnd)})
+
+        p1Board.style.display = 'none'
+        p2Board.style.display = 'grid'
+
+        p1Pieces.remove()
+        p2Pieces.style.display = 'flex'
+        display.innerText = `${p2Name}, place your ships on the board. Press 'R' to rotate them.`
+        console.log(ships, destroyer)
+    } else {
+        p1Turn = true
+        p2Turn = false
+
+        p1Board.style.display = 'grid'
+        p2Pieces.remove()
+
+        playerTurn(p1Turn, p2Turn)
+    }
+}
+
 
 // Turn Change
+function playerTurn(p1, p2) {
+    finished.style.display = 'none'
+    if(p1 === true) {
+        console.log(p1 === true)
+    }
+}
 
-
-// Color Change (remove later or repurpose for hit; I'm just testing things right now)
-
-function changeColor(square) {
-    if (!square.classList.contains('taken')) {
-        square.classList.add('miss')
+function attack(square) {
+    if (!square.classList.contains('targeted')){
+        if (!square.classList.contains('taken')) {
+            square.classList.add('miss', 'targeted')
+        } else {
+            square.classList.add('hit', 'targeted')
+        }
     } else {
-        square.classList.add('hit')
+        display.innerText = 'You\'ve already tried attacking this square!'
     }
 }
 
 p1Board.addEventListener('click', (event)=>{
     console.log(event.target)
     console.log(typeof event.target.dataset.id, event.target.dataset.id)
-    changeColor(event.target)
+    attack(event.target)
 })
 
 p2Board.addEventListener('click', (event)=>{
     console.log(event.target)
     console.log(typeof event.target.dataset.id, event.target.dataset.id)
-    changeColor(event.target)
+    attack(event.target)
 })
 
 window.addEventListener('keydown', (event)=> {
@@ -295,7 +254,19 @@ window.addEventListener('keydown', (event)=> {
 
 ships.forEach(ship => {
     ship.addEventListener('mousedown', (event)=> {
+        console.log(event.target)
         selectedShipSectionId = parseInt(event.target.id.slice(event.target.id.length-1))
-        selectedShip = (event.target.id.slice(0, -2))
+        selectedShip = (event.target.id.slice(2, -2))
+        console.log(selectedShip)
     })
 })
+
+window.addEventListener('load', () => {
+    setupDialog.showModal()
+  });
+
+  start.addEventListener('click', () => {
+    startGame()
+  })
+
+  finished.addEventListener('click', ()=> {finishedPlacement()})
