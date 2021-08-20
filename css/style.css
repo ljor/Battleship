@@ -112,11 +112,16 @@ header {
     
 }
 
-.destroyer,
-.cruiser,
-.submarine,
-.battleship,
-.carrier {
+.p1-destroyer,
+.p1-cruiser,
+.p1-submarine,
+.p1-battleship,
+.p1-carrier, 
+.p2-destroyer,
+.p2-cruiser,
+.p2-submarine,
+.p2-battleship,
+.p2-carrier {
     background-color: hsl(0, 0%, 70%);
 }
 
@@ -195,4 +200,14 @@ header {
 .drag-over {
     background-color: rgb(88, 149, 153);
     border: 1px solid hsla(0, 0%, 100%, .5);
+}
+
+.dim-board {
+    background-color: rgb(67, 112, 116);
+    border: 1px solid hsla(0, 0%, 100%, .5);
+}
+
+.ship-hide {
+    background-color: rgb(122, 206, 212);
+    border-radius: none;
 }
