@@ -182,6 +182,12 @@ header {
     --height: 5;
     --width: 1;
 }
+
+.ship-hide {
+    background-color: rgb(122, 206, 212);
+    border-radius: none !important;
+}
+
 .hit {
     background-color: red;
 }
@@ -200,14 +206,4 @@ header {
 .drag-over {
     background-color: rgb(88, 149, 153);
     border: 1px solid hsla(0, 0%, 100%, .5);
-}
-
-.dim-board {
-    background-color: rgb(67, 112, 116);
-    border: 1px solid hsla(0, 0%, 100%, .5);
-}
-
-.ship-hide {
-    background-color: rgb(122, 206, 212);
-    border-radius: none;
 }

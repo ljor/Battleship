@@ -6,8 +6,6 @@ const p1Input = document.querySelector('#player1')
 const p2Input = document.querySelector('#player2')
 const p1Board = document.querySelector('#p1-board')
 const p2Board = document.querySelector('#p2-board')
-const p1GridSquares = document.querySelectorAll('#p1-board > div')
-const p2GridSquares = document.querySelectorAll('#p2-board > div')
 const p1Pieces = document.querySelector('#pieceboard1')
 const p2Pieces = document.querySelector('#pieceboard2')
 const display = document.querySelector('#message-display')
@@ -215,9 +213,11 @@ function finishedPlacement() {
         p2Pieces.style.display = 'flex'
         display.innerText =`${p2Name}, place your ships on the board. Press 'R' to rotate them.`
     } else {
+        let shipSquares = filteredShips(p1Squares).concat(filteredShips(p2Squares))
         p1Turn = true
         p2Turn = false
 
+        shipSquares.forEach(element => element.classList.toggle('ship-hide'))
         p1Board.style.display = 'grid'
         p2Pieces.remove()
         finished.style.display = 'none'
@@ -321,6 +321,27 @@ function gameOver() {
         playerTurn()
     }
 }
+function filteredShips(squares) {
+    const takenSquares = squares.filter(ship => ship.classList.contains('taken'))
+    return takenSquares
+}
+
+function revealPieces() {
+    warningDialog.close()
+
+    let shipSquares = []
+    if (p1Turn === true) {
+        shipSquares = filteredShips(p2Squares)
+    } else {
+        shipSquares = filteredShips(p1Squares)
+    }
+
+    shipSquares.forEach(element => element.classList.toggle('ship-hide'))
+
+    const revealShipTimer = setTimeout(() => {
+        shipSquares.forEach(element => element.classList.toggle('ship-hide'))
+    }, 6000)
+}
 
 function newGame() {
     location.reload()
@@ -355,7 +376,7 @@ window.addEventListener('load', () => {
       instructionsDialog.showModal()
   })
 
-//   okayRevealBtn.addEventListener('click', revealPieces)
+  okayRevealBtn.addEventListener('click', revealPieces)
 
   okayRulesBtn.addEventListener('click', closeDialog)
 
