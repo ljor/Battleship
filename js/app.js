@@ -31,6 +31,10 @@ const shipTypes = [
     'battleship',
     'carrier'
   ]
+let p1ShipStartSquares
+let p2ShipStartSquares
+let p1ShipEndSquares
+let p2ShipEndSquares
   
 const p1Ships = []
 const p2Ships = []
@@ -214,10 +218,24 @@ function finishedPlacement() {
         display.innerText =`${p2Name}, place your ships on the board. Press 'R' to rotate them.`
     } else {
         let shipSquares = filteredShips(p1Squares).concat(filteredShips(p2Squares))
+
+        filterShipStarts('p1', p1Squares)
+        filterShipStarts('p2', p2Squares)
+        filterShipEnds('p1', p1Squares)
+        filterShipEnds('p2', p2Squares)
+
+        let shipStartSquares = p1ShipStartSquares.concat(p2ShipStartSquares)
+        let shipEndSquares = p1ShipEndSquares.concat(p2ShipEndSquares)
+
         p1Turn = true
         p2Turn = false
 
         shipSquares.forEach(element => element.classList.toggle('ship-hide'))
+        shipStartSquares.forEach(element => element.classList.toggle('start'))
+        shipEndSquares.forEach(element => element.classList.toggle('end'))
+
+        
+
         p1Board.style.display = 'grid'
         p2Pieces.remove()
         finished.style.display = 'none'
@@ -321,35 +339,68 @@ function gameOver() {
         playerTurn()
     }
 }
+
+function revealPieces() {
+    warningDialog.close()
+
+    let shipSquares
+    let shipStarts
+    let shipEnds
+
+    if (p1Turn === true) {
+        shipSquares = filteredShips(p2Squares)
+        shipStarts = p2ShipStartSquares
+        shipEnds = p2ShipEndSquares
+    } else {
+        shipSquares = filteredShips(p1Squares)
+        shipStarts = p1ShipStartSquares
+        shipEnds = p1ShipEndSquares
+    }
+
+    shipSquares.forEach(element => element.classList.toggle('ship-hide'))
+    shipStarts.forEach(element => element.classList.toggle('start'))
+    shipEnds.forEach(element => element.classList.toggle('end'))
+
+    const revealShipTimer = setTimeout(() => {
+        shipSquares.forEach(element => element.classList.toggle('ship-hide'))
+        shipStarts.forEach(element => element.classList.toggle('start'))
+        shipEnds.forEach(element => element.classList.toggle('end'))
+    }, 6000)
+}
+// Ship sorting functions
+
 function filteredShips(squares) {
     const takenSquares = squares.filter(ship => ship.classList.contains('taken'))
     return takenSquares
 }
 
-function revealPieces() {
-    warningDialog.close()
+function filterShipStarts(player, squares) {
+    const shipStarts = squares.filter(ship => ship.classList.contains('start'))
 
-    let shipSquares = []
-    if (p1Turn === true) {
-        shipSquares = filteredShips(p2Squares)
+    if (player === 'p1') {
+        p1ShipStartSquares = shipStarts
     } else {
-        shipSquares = filteredShips(p1Squares)
+        p2ShipStartSquares = shipStarts
     }
-
-    shipSquares.forEach(element => element.classList.toggle('ship-hide'))
-
-    const revealShipTimer = setTimeout(() => {
-        shipSquares.forEach(element => element.classList.toggle('ship-hide'))
-    }, 6000)
 }
 
-function newGame() {
-    location.reload()
+function filterShipEnds(player, squares) {
+    const shipEnds = squares.filter(ship => ship.classList.contains('end'))
+
+    if (player === 'p1') {
+        p1ShipEndSquares = shipEnds
+    } else {
+        p2ShipEndSquares = shipEnds
+    }
 }
 
 function closeDialog() {
     warningDialog.close()
     instructionsDialog.close()
+}
+
+function newGame() {
+    location.reload()
 }
 
 // Event Listeners

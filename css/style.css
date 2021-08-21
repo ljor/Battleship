@@ -125,22 +125,22 @@ header {
     background-color: hsl(0, 0%, 70%);
 }
 
-.taken.start.vertical {
+.start.vertical {
     border-top-left-radius: 50%;
     border-top-right-radius: 50%;
 }
 
-.taken.end.vertical {
+.end.vertical {
     border-bottom-left-radius: 50%;
     border-bottom-right-radius: 50%;
 }
 
-.taken.start.horizontal {
+.start.horizontal {
     border-top-left-radius: 50%;
     border-bottom-left-radius: 50%;
 }
 
-.taken.end.horizontal {
+.end.horizontal {
     border-top-right-radius: 50%;
     border-bottom-right-radius: 50%;
 }
@@ -185,7 +185,7 @@ header {
 
 .ship-hide {
     background-color: rgb(122, 206, 212);
-    border-radius: none !important;
+    border-radius: none;
 }
 
 .hit {
