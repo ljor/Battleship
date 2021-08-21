@@ -78,7 +78,7 @@ header {
     text-align: center;
     font-size: 15px;
     width: 14vmin;
-    height: 6vmin;
+    height: 8vmin;
     margin: 10px;
     padding: 10px;
     cursor: pointer;
@@ -191,7 +191,7 @@ header {
 
 .hit, 
 .miss {
-    border-radius: 100%;
+    border-radius: 100% !important;
     margin: auto;
     width: 2vmin;
     height: 2vmin;

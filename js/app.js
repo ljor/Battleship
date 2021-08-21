@@ -1,4 +1,7 @@
 const setupDialog = document.querySelector('#setup')
+const instructionsDialog = document.querySelector('#instructions')
+const warningDialog = document.querySelector('#warning')
+
 const p1Input = document.querySelector('#player1')
 const p2Input = document.querySelector('#player2')
 const p1Board = document.querySelector('#p1-board')
@@ -8,17 +11,20 @@ const p2GridSquares = document.querySelectorAll('#p2-board > div')
 const p1Pieces = document.querySelector('#pieceboard1')
 const p2Pieces = document.querySelector('#pieceboard2')
 const display = document.querySelector('#message-display')
-const start = document.querySelector('#start')
-const finished = document.querySelector('#finished')
-const reveal = document.querySelector('#reveal')
+
+const startBtn = document.querySelector('#start')
+const finishedBtn = document.querySelector('#finished')
+const revealBtn = document.querySelector('#reveal')
+const restartBtn = document.querySelector('#new-game')
+const okayRulesBtn = document.querySelector('#close')
+const okayRevealBtn = document.querySelector('#ok')
+const cancelBtn = document.querySelector('#cancel')
+const instructionsBtn = document.querySelector('#how-to')
 
 const p1Squares = []
 const p2Squares = []
 
-let selectedShipSectionId
-let selectedShip
-let draggedShip
-let draggedShipLength
+
 
 const shipTypes = [
     'destroyer',
@@ -39,14 +45,14 @@ let p2Turn = false
 
 let isHorizontal = true
 
-// Score Tracking <-- is there a better way to do this?
+// Score Tracking
 let p1Destroyer = 2
 let p1Cruiser = 3
 let p1Submarine = 3
 let p1Battleship = 4
 let p1Carrier = 5
 
-let p1Score = p1Destroyer + p1Cruiser + p1Submarine + p1Battleship + p1Carrier
+let p1Score = 17
 
 let p2Destroyer = 2
 let p2Cruiser = 3
@@ -54,7 +60,10 @@ let p2Submarine = 3
 let p2Battleship = 4
 let p2Carrier = 5
 
-let p2Score = p2Destroyer + p2Cruiser + p2Submarine + p2Battleship + p2Carrier
+let p2Score = 17
+
+restartBtn.style.display = 'none'
+revealBtn.style.display ='none'
 
 
 
@@ -88,7 +97,7 @@ function createBoard(board, grid) {
 createBoard(p1Board, p1Squares)
 createBoard(p2Board, p2Squares)
 
-// Create Gamepieces  <-- change back to function? Only need the extra data if it's useful for piece placement... otherwise, axe it. To change it, make the p#Ships a local array within the new function
+// Create Gamepieces 
 class Ship {
     constructor(ship, length) {
         this.ship = ship
@@ -139,7 +148,6 @@ class playerShip extends Ship {
   
   p1Ships.forEach((index) => index.createPieces(p1Pieces))
   p2Ships.forEach((index) => index.createPieces(p2Pieces))
-  console.log(p2Pieces)
 
 // ship piece selectors
 const destroyer = document.querySelectorAll('.destroyer-container')
@@ -189,6 +197,12 @@ function rotate() {
 }
 
 // Gameplay
+function slowText(text) {
+    const displayScreen = setTimeout(() => {
+        display.innerText = text
+    }, 1400);
+}
+
 function finishedPlacement() {
     if (p1Turn === true) {
         p2Turn = true
@@ -199,13 +213,15 @@ function finishedPlacement() {
 
         p1Pieces.remove()
         p2Pieces.style.display = 'flex'
-        display.innerText = `${p2Name}, place your ships on the board. Press 'R' to rotate them.`
+        display.innerText =`${p2Name}, place your ships on the board. Press 'R' to rotate them.`
     } else {
         p1Turn = true
         p2Turn = false
 
         p1Board.style.display = 'grid'
         p2Pieces.remove()
+        finished.style.display = 'none'
+        revealBtn.style.display ='block'
 
         playerTurn()
     }
@@ -213,16 +229,16 @@ function finishedPlacement() {
 
 // Turn Change
 function playerTurn() {
-    finished.style.display = 'none'
+
     if(p1Turn === true) {
-        display.innerText = `${p1Name}, you may fire when ready.`
+        slowText(`${p1Name}, you may fire when ready.`)
 
         p2Board.addEventListener('click', attack)
         p1Board.removeEventListener('click', attack)
         p1Turn = false
         p2Turn = true
     } else if(p2Turn === true) {
-        display.innerText = `${p2Name}... Ready. Aim. FIRE!`
+       slowText(`${p2Name}... Ready. Aim. FIRE!`)
 
         p1Board.addEventListener('click', attack)
         p2Board.removeEventListener('click', attack)
@@ -295,18 +311,27 @@ function destroyedCheck() {
 }
 
 function gameOver() {
-    console.log('game over check')
-    console.log('p1 score', p1Score)
-    console.log('p2 score', p2Score)
     if (p1Score === 0) {
         display.innerText = `${p2Name} wins! ${p1Name}'s ships have all been destroyed.`
+        restartBtn.style.display = 'block'
     } else if (p2Score === 0) {
         display.innerText = `${p1Name} wins! ${p2Name}'s ships have all been destroyed.`
+        restartBtn.style.display = 'block'
     } else {
         playerTurn()
     }
 }
 
+function newGame() {
+    location.reload()
+}
+
+function closeDialog() {
+    warningDialog.close()
+    instructionsDialog.close()
+}
+
+// Event Listeners
 window.addEventListener('keydown', (event)=> {
     if(event.code === 'KeyR') {
         rotate()
@@ -324,11 +349,25 @@ window.addEventListener('load', () => {
     setupDialog.showModal()
   });
 
-  start.addEventListener('click', () => {
-    startGame()
+  cancelBtn.addEventListener('click', closeDialog)
+  
+  instructionsBtn .addEventListener('click', ()=> {
+      instructionsDialog.showModal()
   })
 
-  finished.addEventListener('click', ()=> {finishedPlacement()})
+//   okayRevealBtn.addEventListener('click', revealPieces)
+
+  okayRulesBtn.addEventListener('click', closeDialog)
+
+  startBtn.addEventListener('click', startGame)
+
+  restartBtn.addEventListener('click', newGame)
+
+  revealBtn.addEventListener('click', () => {
+      warningDialog.showModal()
+    })
+
+  finishedBtn.addEventListener('click', finishedPlacement)
 
 dragAndDrop(p1Squares, p1Pieces);
 dragAndDrop(p2Squares, p2Pieces);

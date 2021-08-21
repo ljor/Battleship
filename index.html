@@ -23,6 +23,30 @@
             <input type='text' id="player2" value="Player 2" placeholder="Player 2"><br><br>
             <button class="button" id ="start">Start Game</button>
         </dialog>
+        <dialog id="instructions">
+            <h3>Instructions</h3>
+            <p>
+                This game is for two players. Each player will take turns placing their ships on their grid.
+                Drag the ship over the grid and drop it where you want it to go. Press 'R' to rotate them.
+                Press the "Finished" button when you are done.<br>
+                Once all ships have been placed, players will take turns attacking the other player's grid.
+                To attack, click on the grid square you want to hit. If it is a hit, a red dot will appear.
+                If it is a miss, a white one will display. <br>
+                To win, you must destroy all your opponents ships before they destroy yours. <br> <br>
+                Start Sinking!
+            </p>
+            <button class="button" id="close">OK</button>
+        </dialog>
+        <dialog id="warning">
+            <h3>-- WARNING --</h3>
+            <p>
+                This button will temporarily reveal your ships for you to see. <br><br>
+                <strong>Make sure your opponent has been properly disposed of -- *erm* shooed away before clicking "OK".</strong> <br><br>
+                Press "Cancel" to exit, or "OK" if you are positive you want to go through with this...
+            </p>
+            <button class="button" id="cancel">Cancel</button>
+            <button class="button" id="ok">OK</button>
+        </dialog>
         <header>
             <h1>Battleship</h1>
         </header>
@@ -34,14 +58,15 @@
             <div class="pieceboard" id="pieceboard1"></div>
             <div class="pieceboard" id="pieceboard2"></div>
             <button class="button" id="finished">Finished</button>
+            <button class="button" id="how-to">How To Play</button>
             <button class="button" id="reveal">Reveal My Ships</button>
+            <button class="button" id="new-game">New Game</button>
         </div>
         <div>
             <h2 id="message-display"></h2>
         </div>
    </div>
-   <script type="text/javascript" src="js/p1drag.js"></script>
+   <script type="text/javascript" src="js/dragndrop.js"></script>
     <script type="text/javascript" src="js/app.js"></script>
-    <!-- <script type="text/javascript" src="js/p2drag.js"></script> -->
 </body>
 </html>
