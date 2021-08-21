@@ -385,10 +385,19 @@ function gameOver() {
     console.log(p2Score)
     if (p1Score === 0) {
         display.innerText = `${p2Name} wins! ${p1Name}'s ships have all been destroyed.`
+        revealBtn.style.display = 'none'
         restartBtn.style.display = 'block'
+
+        p1Board.removeEventListener('click', attack)
+        p1Squares.forEach(square => square.style.cursor = 'not-allowed')
+
     } else if (p2Score === 0) {
         display.innerText = `${p1Name} wins! ${p2Name}'s ships have all been destroyed.`
+        revealBtn.style.display = 'none'
         restartBtn.style.display = 'block'
+
+        p2Board.removeEventListener('click', attack)
+        p2Squares.forEach(square => square.style.cursor = 'not-allowed')
     } else {
         playerTurn()
     }
