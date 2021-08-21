@@ -1,18 +1,24 @@
 const setupDialog = document.querySelector('#setup')
 const p1Input = document.querySelector('#player1')
 const p2Input = document.querySelector('#player2')
-const p1BoardsContainer = document.querySelector('#p1-boards')
 const p1Board = document.querySelector('#p1-board')
 const p2Board = document.querySelector('#p2-board')
-// const playerGridSquares = document.querySelectorAll('#p1-board > div')
+const p1GridSquares = document.querySelectorAll('#p1-board > div')
+const p2GridSquares = document.querySelectorAll('#p2-board > div')
 const p1Pieces = document.querySelector('#pieceboard1')
 const p2Pieces = document.querySelector('#pieceboard2')
 const display = document.querySelector('#message-display')
 const start = document.querySelector('#start')
 const finished = document.querySelector('#finished')
+const reveal = document.querySelector('#reveal')
 
 const p1Squares = []
 const p2Squares = []
+
+let selectedShipSectionId
+let selectedShip
+let draggedShip
+let draggedShipLength
 
 const shipTypes = [
     'destroyer',
@@ -28,14 +34,30 @@ const p2Ships = []
 let p1Name = 'Player 1'
 let p2Name = 'Player 2'
 
-let selectedShipSectionId
-let selectedShip
-let draggedShip
-let draggedShipLength
-
 let p1Turn = true
 let p2Turn = false
+
 let isHorizontal = true
+
+// Score Tracking <-- is there a better way to do this?
+let p1Destroyer = 2
+let p1Cruiser = 3
+let p1Submarine = 3
+let p1Battleship = 4
+let p1Carrier = 5
+
+let p1Score = p1Destroyer + p1Cruiser + p1Submarine + p1Battleship + p1Carrier
+
+let p2Destroyer = 2
+let p2Cruiser = 3
+let p2Submarine = 3
+let p2Battleship = 4
+let p2Carrier = 5
+
+let p2Score = p2Destroyer + p2Cruiser + p2Submarine + p2Battleship + p2Carrier
+
+
+
 
 // Game Start
 const startGame = ()=> {
@@ -55,23 +77,9 @@ const startGame = ()=> {
 
 // Create Gameboard
 function createBoard(board, grid) {
-    for (let i = 1; i <= 100; i++) {
+    for (let i = 0; i <= 100; i++) {
         let square = document.createElement('div')
         square.dataset.id = i
-
-        // marking edges
-        if (i <= 10) {
-            square.classList.add('top-edge')
-        }
-        if (i % 10 === 0) {
-            square.classList.add('right-edge')
-        }
-        if (i >= 91) {
-            square.classList.add('bottom-edge')
-        }
-        if (i % 10 === 1 || i === 1) {
-            square.classList.add('left-edge')
-        }
 
         board.appendChild(square)
         grid.push(square)
@@ -80,7 +88,7 @@ function createBoard(board, grid) {
 createBoard(p1Board, p1Squares)
 createBoard(p2Board, p2Squares)
 
-// Create Gamepieces 
+// Create Gamepieces  <-- change back to function? Only need the extra data if it's useful for piece placement... otherwise, axe it. To change it, make the p#Ships a local array within the new function
 class Ship {
     constructor(ship, length) {
         this.ship = ship
@@ -99,8 +107,8 @@ class Ship {
   }
   
 class playerShip extends Ship {
-    constructor(ship, length, owner, directions) {
-        super(ship, length, directions)
+    constructor(ship, length, owner) {
+        super(ship, length)
         this.owner = owner
     }
     createPieces(board) {
@@ -110,7 +118,7 @@ class playerShip extends Ship {
         
         for (let i = 0; i < this.length; i++){
             let parts = document.createElement('div')
-            parts.setAttribute('id', `${this.owner}${this.ship}-${i}`)
+            parts.setAttribute('id', `${this.owner}-${this.ship}-${i}`)
             shipContainer.appendChild(parts)
       }
       board.appendChild(shipContainer)
@@ -130,9 +138,8 @@ class playerShip extends Ship {
   shipTypes.forEach(generateShips);
   
   p1Ships.forEach((index) => index.createPieces(p1Pieces))
-  p1Ships.forEach((index) => index.createPieces(p2Pieces))
-
-console.log(typeof p1Pieces)
+  p2Ships.forEach((index) => index.createPieces(p2Pieces))
+  console.log(p2Pieces)
 
 // ship piece selectors
 const destroyer = document.querySelectorAll('.destroyer-container')
@@ -182,18 +189,10 @@ function rotate() {
 }
 
 // Gameplay
-
 function finishedPlacement() {
     if (p1Turn === true) {
         p2Turn = true
         p1Turn = false
-
-        p1Squares.forEach((square) => {square.removeEventListener('dragstart', dragStart)})
-        p1Squares.forEach((square) => {square.removeEventListener('dragover', dragOver)})
-        p1Squares.forEach((square) => {square.removeEventListener('dragenter', dragEnter)})
-        p1Squares.forEach((square) => {square.removeEventListener('dragleave', dragLeave)})
-        p1Squares.forEach((square) => {square.removeEventListener('drop', dragDrop)})
-        p1Squares.forEach((square) => {square.removeEventListener('dragend', dragEnd)})
 
         p1Board.style.display = 'none'
         p2Board.style.display = 'grid'
@@ -201,7 +200,6 @@ function finishedPlacement() {
         p1Pieces.remove()
         p2Pieces.style.display = 'flex'
         display.innerText = `${p2Name}, place your ships on the board. Press 'R' to rotate them.`
-        console.log(ships, destroyer)
     } else {
         p1Turn = true
         p2Turn = false
@@ -209,42 +207,105 @@ function finishedPlacement() {
         p1Board.style.display = 'grid'
         p2Pieces.remove()
 
-        playerTurn(p1Turn, p2Turn)
+        playerTurn()
     }
 }
-
 
 // Turn Change
-function playerTurn(p1, p2) {
+function playerTurn() {
     finished.style.display = 'none'
-    if(p1 === true) {
-        console.log(p1 === true)
+    if(p1Turn === true) {
+        display.innerText = `${p1Name}, you may fire when ready.`
+
+        p2Board.addEventListener('click', attack)
+        p1Board.removeEventListener('click', attack)
+        p1Turn = false
+        p2Turn = true
+    } else if(p2Turn === true) {
+        display.innerText = `${p2Name}... Ready. Aim. FIRE!`
+
+        p1Board.addEventListener('click', attack)
+        p2Board.removeEventListener('click', attack)
+
+        p2Turn = false
+        p1Turn = true
     }
 }
 
-function attack(square) {
+function attack(event) {
+    let square = event.target
     if (!square.classList.contains('targeted')){
         if (!square.classList.contains('taken')) {
             square.classList.add('miss', 'targeted')
+            display.innerText = 'You missed.'
+            playerTurn()
         } else {
             square.classList.add('hit', 'targeted')
+            display.innerText = 'You hit!'
+            updateScore(square)
         }
-    } else {
-        display.innerText = 'You\'ve already tried attacking this square!'
+    } else if (square.classList.contains('targeted')) {
+        display.innerText = 'You\'ve already tried attacking this square! Target a different square.'
     }
 }
 
-p1Board.addEventListener('click', (event)=>{
-    console.log(event.target)
-    console.log(typeof event.target.dataset.id, event.target.dataset.id)
-    attack(event.target)
-})
+function updateScore(square) {
+    if (square.classList.contains('p1-destroyer')) p1Destroyer--
+    else if (square.classList.contains('p1-cruiser')) p1Cruiser-- 
+    else if (square.classList.contains('p1-submarine')) p1Submarine--
+    else if (square.classList.contains('p1-battleship')) p1Battleship--
+    else if (square.classList.contains('p1-carrier')) p1Carrier--
+    p1Score = p1Destroyer + p1Cruiser + p1Submarine + p1Battleship + p1Carrier
 
-p2Board.addEventListener('click', (event)=>{
-    console.log(event.target)
-    console.log(typeof event.target.dataset.id, event.target.dataset.id)
-    attack(event.target)
-})
+    if (square.classList.contains('p2-destroyer')) p2Destroyer--
+    else if (square.classList.contains('p2-cruiser')) p2Cruiser-- 
+    else if (square.classList.contains('p2-submarine')) p2Submarine--
+    else if (square.classList.contains('p2-battleship')) p2Battleship--
+    else if (square.classList.contains('p2-carrier')) p2Carrier--
+    p2Score = p2Destroyer + p2Cruiser + p2Submarine + p2Battleship + p2Carrier
+
+    destroyedCheck()
+}
+
+function destroyedCheck() {
+    if (p1Destroyer === 0) {
+        display.innerText = `You destroyed ${p1Name}'s destroyer!`
+    } else if (p1Cruiser === 0) {
+        display.innerText = `You destroyed ${p1Name}'s cruiser!`
+    } else if (p1Submarine === 0) {
+        display.innerText = `You destroyed ${p1Name}'s submarine!`
+    } else if (p1Battleship === 0) {
+        display.innerText = `You destroyed ${p1Name}'s battleship!`
+    } else if (p1Carrier === 0) {
+        display.innerText = `You destroyed ${p1Name}'s carrier!`
+    }
+    
+    if (p2Destroyer === 0) {
+        display.innerText = `You destroyed ${p2Name}'s destroyer!`
+    } else if (p2Cruiser === 0) {
+        display.innerText = `You destroyed ${p2Name}'s cruiser!`
+    } else if (p2Submarine === 0) {
+        display.innerText = `You destroyed ${p2Name}'s submarine!`
+    } else if (p2Battleship === 0) {
+        display.innerText = `You destroyed ${p2Name}'s battleship!`
+    } else if (p2Carrier === 0) {
+        display.innerText = `You destroyed ${p2Name}'s carrier!`
+    }
+    gameOver()
+}
+
+function gameOver() {
+    console.log('game over check')
+    console.log('p1 score', p1Score)
+    console.log('p2 score', p2Score)
+    if (p1Score === 0) {
+        display.innerText = `${p2Name} wins! ${p1Name}'s ships have all been destroyed.`
+    } else if (p2Score === 0) {
+        display.innerText = `${p1Name} wins! ${p2Name}'s ships have all been destroyed.`
+    } else {
+        playerTurn()
+    }
+}
 
 window.addEventListener('keydown', (event)=> {
     if(event.code === 'KeyR') {
@@ -254,10 +315,8 @@ window.addEventListener('keydown', (event)=> {
 
 ships.forEach(ship => {
     ship.addEventListener('mousedown', (event)=> {
-        console.log(event.target)
         selectedShipSectionId = parseInt(event.target.id.slice(event.target.id.length-1))
-        selectedShip = (event.target.id.slice(2, -2))
-        console.log(selectedShip)
+        selectedShip = (event.target.id.slice(0, -2))
     })
 })
 
@@ -270,3 +329,6 @@ window.addEventListener('load', () => {
   })
 
   finished.addEventListener('click', ()=> {finishedPlacement()})
+
+dragAndDrop(p1Squares, p1Pieces);
+dragAndDrop(p2Squares, p2Pieces);
