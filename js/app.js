@@ -335,7 +335,10 @@ function updateScore(square) {
     } else if (square.classList.contains('p2-battleship')) {
         p2Battleship--
         p2Score--
-    } else if (square.classList.contains('p2-carrier')) p2Carrier--
+    } else if (square.classList.contains('p2-carrier')) {
+        p2Carrier--
+        p2Score--
+    }
 
     destroyedCheck()
 }
@@ -378,6 +381,8 @@ function destroyedCheck() {
 }
 
 function gameOver() {
+    console.log(p1Score)
+    console.log(p2Score)
     if (p1Score === 0) {
         display.innerText = `${p2Name} wins! ${p1Name}'s ships have all been destroyed.`
         restartBtn.style.display = 'block'
