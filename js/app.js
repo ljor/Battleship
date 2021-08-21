@@ -205,8 +205,21 @@ function slowText(text) {
     }, 1400);
 }
 
+function verifyPiecePlacement(turn, pieces) {
+    if (turn === true) {
+        if (!pieces.hasChildNodes()){
+            return true
+        }
+    } else {
+        return false
+    }
+}
+
 function finishedPlacement() {
-    if (p1Turn === true) {
+    let p1PieceCheck = verifyPiecePlacement(p1Turn, p1Pieces)
+    let p2PieceCheck = verifyPiecePlacement(p2Turn, p2Pieces)
+
+    if (p1PieceCheck === true) {
         p2Turn = true
         p1Turn = false
 
@@ -216,7 +229,7 @@ function finishedPlacement() {
         p1Pieces.remove()
         p2Pieces.style.display = 'flex'
         display.innerText =`${p2Name}, place your ships on the board. Press 'R' to rotate them.`
-    } else {
+    } else if (p2PieceCheck === true) {
         let shipSquares = filteredShips(p1Squares).concat(filteredShips(p2Squares))
 
         filterShipStarts('p1', p1Squares)
@@ -242,6 +255,8 @@ function finishedPlacement() {
         revealBtn.style.display ='block'
 
         playerTurn()
+    } else {
+        display.innerText = 'Finish placing your pieces!'
     }
 }
 
@@ -253,6 +268,10 @@ function playerTurn() {
 
         p2Board.addEventListener('click', attack)
         p1Board.removeEventListener('click', attack)
+
+        p1Squares.forEach(square => square.style.cursor = 'not-allowed')
+        p2Squares.forEach(square => square.style.cursor = 'pointer')
+
         p1Turn = false
         p2Turn = true
     } else if(p2Turn === true) {
@@ -260,6 +279,9 @@ function playerTurn() {
 
         p1Board.addEventListener('click', attack)
         p2Board.removeEventListener('click', attack)
+
+        p1Squares.forEach(square => square.style.cursor = 'pointer')
+        p2Squares.forEach(square => square.style.cursor = 'not-allowed')
 
         p2Turn = false
         p1Turn = true
@@ -284,19 +306,36 @@ function attack(event) {
 }
 
 function updateScore(square) {
-    if (square.classList.contains('p1-destroyer')) p1Destroyer--
-    else if (square.classList.contains('p1-cruiser')) p1Cruiser-- 
-    else if (square.classList.contains('p1-submarine')) p1Submarine--
-    else if (square.classList.contains('p1-battleship')) p1Battleship--
-    else if (square.classList.contains('p1-carrier')) p1Carrier--
-    p1Score = p1Destroyer + p1Cruiser + p1Submarine + p1Battleship + p1Carrier
+    if (square.classList.contains('p1-destroyer')) {
+        p1Destroyer--
+        p1Score--
+    } else if (square.classList.contains('p1-cruiser')) {
+        p1Cruiser-- 
+        p1Score--
+    } else if (square.classList.contains('p1-submarine')) {
+        p1Submarine--
+        p1Score--
+    } else if (square.classList.contains('p1-battleship')) {
+        p1Battleship--
+        p1Score--
+    } else if (square.classList.contains('p1-carrier')) {
+        p1Carrier-- 
+        p1Score--
+    }
 
-    if (square.classList.contains('p2-destroyer')) p2Destroyer--
-    else if (square.classList.contains('p2-cruiser')) p2Cruiser-- 
-    else if (square.classList.contains('p2-submarine')) p2Submarine--
-    else if (square.classList.contains('p2-battleship')) p2Battleship--
-    else if (square.classList.contains('p2-carrier')) p2Carrier--
-    p2Score = p2Destroyer + p2Cruiser + p2Submarine + p2Battleship + p2Carrier
+    if (square.classList.contains('p2-destroyer')) {
+        p2Destroyer--
+        p2Score--
+    } else if (square.classList.contains('p2-cruiser')) {
+        p2Cruiser--
+        p2Score--
+    } else if (square.classList.contains('p2-submarine')) {
+        p2Submarine--
+        p2Score--
+    } else if (square.classList.contains('p2-battleship')) {
+        p2Battleship--
+        p2Score--
+    } else if (square.classList.contains('p2-carrier')) p2Carrier--
 
     destroyedCheck()
 }
@@ -304,26 +343,36 @@ function updateScore(square) {
 function destroyedCheck() {
     if (p1Destroyer === 0) {
         display.innerText = `You destroyed ${p1Name}'s destroyer!`
+        p1Destroyer = 100
     } else if (p1Cruiser === 0) {
         display.innerText = `You destroyed ${p1Name}'s cruiser!`
+        p1Cruiser = 100
     } else if (p1Submarine === 0) {
         display.innerText = `You destroyed ${p1Name}'s submarine!`
+        p1Submarine = 100
     } else if (p1Battleship === 0) {
         display.innerText = `You destroyed ${p1Name}'s battleship!`
+        p1Battleship = 100
     } else if (p1Carrier === 0) {
         display.innerText = `You destroyed ${p1Name}'s carrier!`
+        p1Carrier = 100
     }
     
     if (p2Destroyer === 0) {
         display.innerText = `You destroyed ${p2Name}'s destroyer!`
+        p2Destroyer = 100
     } else if (p2Cruiser === 0) {
         display.innerText = `You destroyed ${p2Name}'s cruiser!`
+        p2Cruiser = 100
     } else if (p2Submarine === 0) {
         display.innerText = `You destroyed ${p2Name}'s submarine!`
+        p2Submarine = 100
     } else if (p2Battleship === 0) {
         display.innerText = `You destroyed ${p2Name}'s battleship!`
+        p2Battleship = 100
     } else if (p2Carrier === 0) {
         display.innerText = `You destroyed ${p2Name}'s carrier!`
+        p2Carrier = 100
     }
     gameOver()
 }
@@ -365,10 +414,10 @@ function revealPieces() {
         shipSquares.forEach(element => element.classList.toggle('ship-hide'))
         shipStarts.forEach(element => element.classList.toggle('start'))
         shipEnds.forEach(element => element.classList.toggle('end'))
-    }, 6000)
+    }, 5000)
 }
-// Ship sorting functions
 
+// Ship sorting functions
 function filteredShips(squares) {
     const takenSquares = squares.filter(ship => ship.classList.contains('taken'))
     return takenSquares
@@ -420,24 +469,22 @@ ships.forEach(ship => {
 window.addEventListener('load', () => {
     setupDialog.showModal()
   });
-
-  cancelBtn.addEventListener('click', closeDialog)
   
   instructionsBtn .addEventListener('click', ()=> {
       instructionsDialog.showModal()
   })
 
-  okayRevealBtn.addEventListener('click', revealPieces)
-
-  okayRulesBtn.addEventListener('click', closeDialog)
-
-  startBtn.addEventListener('click', startGame)
-
-  restartBtn.addEventListener('click', newGame)
-
   revealBtn.addEventListener('click', () => {
-      warningDialog.showModal()
-    })
+    warningDialog.showModal()
+  })
+
+  okayRevealBtn.addEventListener('click', revealPieces)
+  okayRulesBtn.addEventListener('click', closeDialog)
+  startBtn.addEventListener('click', startGame)
+  restartBtn.addEventListener('click', newGame)
+  cancelBtn.addEventListener('click', closeDialog)
+
+
 
   finishedBtn.addEventListener('click', finishedPlacement)
 
