@@ -1,10 +1,13 @@
 # battleship
 
-My project is the game Battleship. I wanted to create a game that would push beyond my comfort zone with Javascript and force me to learn new things.
+My project is the game Battleship. I wanted to create a game that would push me beyond my comfort zone with Javascript and force me to learn new things.
 
-I used HTML, CSS, and Javascript to create the game
+I used HTML, CSS, and Javascript to create this game
 
-I will add the wireframes and when I figure out how...  >_<
+Wireframes: 
+
+![IMG_2913](https://user-images.githubusercontent.com/85857768/131220478-bea3a49f-c121-48b7-adfd-2183ab3d5784.JPG)
+![IMG_2914](https://user-images.githubusercontent.com/85857768/131220464-cc752e42-8a8a-4a1f-b40d-4d57dc027f2f.JPG)
 
 User Stories:
 
@@ -19,8 +22,7 @@ User Stories:
 
 
 Unsolved Problems:
-- Player can stack ships during placement.
-- Player can close out their ship placement window before all their ships can be placed.
+- Player can stack ships during placement
 
 Forthcoming features:
 - vs. computer option
