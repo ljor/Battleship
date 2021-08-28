@@ -269,7 +269,7 @@ function playerTurn() {
         p2Board.addEventListener('click', attack)
         p1Board.removeEventListener('click', attack)
 
-        p1Squares.forEach(square => square.style.cursor = 'not-allowed')
+        p1Squares.forEach(square => square.style.cursor = 'default')
         p2Squares.forEach(square => square.style.cursor = 'pointer')
 
         p1Turn = false
@@ -281,7 +281,7 @@ function playerTurn() {
         p2Board.removeEventListener('click', attack)
 
         p1Squares.forEach(square => square.style.cursor = 'pointer')
-        p2Squares.forEach(square => square.style.cursor = 'not-allowed')
+        p2Squares.forEach(square => square.style.cursor = 'default')
 
         p2Turn = false
         p1Turn = true
@@ -389,7 +389,7 @@ function gameOver() {
         restartBtn.style.display = 'block'
 
         p1Board.removeEventListener('click', attack)
-        p1Squares.forEach(square => square.style.cursor = 'not-allowed')
+        p1Squares.forEach(square => square.style.cursor = 'default')
 
     } else if (p2Score === 0) {
         display.innerText = `${p1Name} wins! ${p2Name}'s ships have all been destroyed.`
@@ -397,7 +397,7 @@ function gameOver() {
         restartBtn.style.display = 'block'
 
         p2Board.removeEventListener('click', attack)
-        p2Squares.forEach(square => square.style.cursor = 'not-allowed')
+        p2Squares.forEach(square => square.style.cursor = 'default')
     } else {
         playerTurn()
     }
